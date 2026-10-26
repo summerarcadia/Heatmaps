@@ -2,35 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Hayley's Daily Accountability</title>
   <meta name="description" content="Daily study habits, tracked in public.">
+  <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1216" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Accountability">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
-    <header>
+    <header class="panel">
       <h1 id="title">Hayley's Daily Accountability</h1>
       <p class="sub">Daily study habits, tracked in public.</p>
     </header>
 
+    <section id="customize" class="panel" hidden>
+      <h2>Customize</h2>
+      <div class="field">
+        <label for="calendar-mode">Calendar mode</label>
+        <select id="calendar-mode">
+          <option value="yearly">Yearly Overview</option>
+          <option value="timeline">Continuous Timeline</option>
+        </select>
+      </div>
+      <div id="scheme-fields"></div>
+      <div class="field">
+        <label for="bg-type">Background</label>
+        <select id="bg-type">
+          <option value="none">Default</option>
+          <option value="color">Color</option>
+          <option value="image">Image</option>
+        </select>
+      </div>
+      <div class="field" id="bg-color-field" hidden>
+        <label for="bg-color">Background color</label>
+        <input type="color" id="bg-color">
+      </div>
+      <div class="field" id="bg-image-field" hidden>
+        <label for="bg-image">Background image</label>
+        <input type="file" id="bg-image" accept="image/*">
+      </div>
+      <div class="row">
+        <button type="button" id="customize-save" class="primary">Save</button>
+        <button type="button" id="customize-cancel">Cancel</button>
+      </div>
+      <p id="customize-status" class="small"></p>
+    </section>
+
     <div id="habits" aria-live="polite"><p class="muted">Loading…</p></div>
 
-    <footer>
+    <footer class="panel">
       <div id="login" hidden>
         <form id="login-form">
           <label for="token">GitHub token</label>
           <div class="row">
             <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
             <button type="submit">Save</button>
-            <button type="button" id="login-cancel" class="ghost">Cancel</button>
+            <button type="button" id="login-cancel">Cancel</button>
           </div>
           <p class="muted small">Stored only in this browser. Needs "Contents: Read and write" on this repo.</p>
           <p id="login-status" class="small"></p>
         </form>
       </div>
-      <p class="small muted">
+      <p class="small muted footer-links">
         <span id="owner-state"></span>
+        <button type="button" id="customize-toggle" class="link" hidden>Customize</button>
         <button type="button" id="login-toggle" class="link">Log in</button>
       </p>
     </footer>
@@ -39,8 +80,15 @@
   <template id="habit-template">
     <section class="habit">
       <div class="habit-head">
-        <h2 class="habit-name"></h2>
-        <span class="habit-meta muted small"></span>
+        <div>
+          <h2 class="habit-name"></h2>
+          <span class="habit-meta muted small"></span>
+        </div>
+        <div class="nav">
+          <button type="button" class="nav-btn" data-nav="-1" aria-label="Earlier">‹</button>
+          <button type="button" class="nav-btn" data-nav="0" aria-label="Back to today">○</button>
+          <button type="button" class="nav-btn" data-nav="1" aria-label="Later">›</button>
+        </div>
       </div>
       <div class="stats">
         <div class="stat"><span class="stat-label">Today</span><span class="stat-value" data-stat="today"></span></div>
@@ -50,9 +98,8 @@
       </div>
       <div class="map-scroll">
         <div class="map">
-          <div class="months"></div>
-          <div class="weekdays"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
-          <div class="grid" role="img"></div>
+          <div class="weekdays"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+          <div class="map-body" role="img"></div>
         </div>
       </div>
       <div class="map-foot small">

@@ -4,6 +4,14 @@
   "repo": "accountability",
   "branch": "main",
   "day_starts_at_hour": 4,
+  "appearance": {
+    "calendar_mode": "yearly",
+    "background": {
+      "type": "none",
+      "color": "#2b3a55",
+      "image": ""
+    }
+  },
   "habits": [
     {
       "id": "anki",
@@ -13,7 +21,7 @@
       "unit_one": "review",
       "goal": 1,
       "levels": "auto",
-      "colors": ["#d4e383", "#a2d06a", "#6cb655", "#2f8a30", "#186820"],
+      "scheme": "lime",
       "manual": false
     },
     {
@@ -24,7 +32,7 @@
       "unit_one": "passage",
       "goal": 1,
       "levels": [1, 2, 3, 4, 5],
-      "colors": ["#f9c2c2", "#f37aa6", "#da3392", "#7a0071", "#4a0068"],
+      "scheme": "magenta",
       "manual": true,
       "buttons": [1]
     },
@@ -36,7 +44,7 @@
       "unit_one": "question",
       "goal": 10,
       "levels": [1, 10, 20, 30, 40],
-      "colors": ["#a9d2f3", "#7fb8f0", "#4a90e8", "#1a6fe0", "#0058c8"],
+      "scheme": "ice",
       "manual": true,
       "buttons": [10]
     }
