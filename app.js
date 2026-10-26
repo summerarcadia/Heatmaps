@@ -4,14 +4,18 @@ const TOKEN_KEY = "accountability-token";
 const DAY_MS = 86400000;
 const BG_IMAGE_PATH = "assets/background.jpg";
 
-// Same palettes as the Review Heatmap themes in Anki, lightest to darkest.
+// The Review Heatmap themes from Anki, ten shades each, lightest to darkest.
 const SCHEMES = {
-  lime: { name: "Lime", colors: ["#d4e383", "#a2d06a", "#6cb655", "#2f8a30", "#186820"] },
-  olive: { name: "Olive", colors: ["#dae289", "#a8c66c", "#7ba659", "#557f3f", "#3b6427"] },
-  ice: { name: "Ice", colors: ["#a9d2f3", "#7fb8f0", "#4a90e8", "#1a6fe0", "#0058c8"] },
-  magenta: { name: "Magenta", colors: ["#f9c2c2", "#f37aa6", "#da3392", "#7a0071", "#4a0068"] },
-  flame: { name: "Flame", colors: ["#fed976", "#feb24c", "#fd8d3c", "#e31a1c", "#800026"] },
+  lime: { name: "Lime", colors: ["#d6e685", "#bddb7a", "#a4d06f", "#8cc665", "#74ba58",
+    "#5cae4c", "#44a340", "#378f36", "#2a7b2c", "#1e6823"] },
+  ice: { name: "Ice", colors: ["#a8d5f6", "#95c8f3", "#82bbf0", "#70afee", "#5da2eb",
+    "#4a95e8", "#3889e6", "#257ce3", "#126fe0", "#0063de"] },
+  magenta: { name: "Magenta", colors: ["#fde0dd", "#fcc5c0", "#fa9fb5", "#f768a1", "#ea4e9c",
+    "#dd3497", "#ae017e", "#7a0177", "#610070", "#49006a"] },
+  flame: { name: "Flame", colors: ["#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc6d33",
+    "#fc4e2a", "#e31a1c", "#d00d21", "#bd0026", "#800026"] },
 };
+const darkMode = window.matchMedia("(prefers-color-scheme: dark)");
 
 let config = null;
 let savedConfig = null; // copy of config while the Customize panel is open
@@ -65,10 +69,13 @@ function average(days) {
   return counts.length ? Math.round(counts.reduce((a, b) => a + b, 0) / counts.length) : 0;
 }
 
+// Any activity gets the first shade; the darkest shade is reached at "max"
+// ("auto" means twice the daily average, roughly how Anki scales it).
 function thresholds(habit, days) {
-  if (Array.isArray(habit.levels)) return habit.levels;
-  const avg = Math.max(average(days), 1);
-  return [1, avg * 0.5, avg, avg * 1.5, avg * 2];
+  const max = habit.max === "auto" || !habit.max ? Math.max(average(days), 1) * 2 : habit.max;
+  const limits = [1];
+  for (let k = 2; k <= 10; k++) limits.push(Math.max(1, (max * k) / 10));
+  return limits;
 }
 
 function level(count, limits) {
@@ -77,7 +84,11 @@ function level(count, limits) {
   return lvl;
 }
 
-function colorsFor(habit) { return (SCHEMES[habit.scheme] || SCHEMES.lime).colors; }
+// Like Anki's night mode, dark mode runs the shades the other way so quiet days stay subtle.
+function colorsFor(habit) {
+  const colors = (SCHEMES[habit.scheme] || SCHEMES.lime).colors;
+  return darkMode.matches ? colors.slice().reverse() : colors;
+}
 
 function plural(habit, n) { return n + " " + (n === 1 ? habit.unit_one : habit.unit); }
 
@@ -446,15 +457,33 @@ function setupCustomize() {
     for (const habit of config.habits) {
       const field = document.createElement("div");
       field.className = "field";
-      const label = document.createElement("label");
+      field.classList.add("scheme-field");
+      const label = document.createElement("span");
+      label.className = "field-label";
       label.textContent = habit.name + " color";
-      label.htmlFor = "scheme-" + habit.id;
-      const select = document.createElement("select");
-      select.id = "scheme-" + habit.id;
-      for (const [key, s] of Object.entries(SCHEMES)) select.add(new Option(s.name, key));
-      select.value = SCHEMES[habit.scheme] ? habit.scheme : "lime";
-      select.addEventListener("change", () => { habit.scheme = select.value; renderAll(); });
-      field.append(label, select);
+      const picker = document.createElement("div");
+      picker.className = "swatches";
+      picker.setAttribute("role", "radiogroup");
+      picker.setAttribute("aria-label", habit.name + " color");
+      for (const [key, scheme] of Object.entries(SCHEMES)) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "swatch";
+        b.dataset.scheme = key;
+        b.setAttribute("role", "radio");
+        b.setAttribute("aria-checked", String((SCHEMES[habit.scheme] ? habit.scheme : "lime") === key));
+        const strip = document.createElement("span");
+        strip.className = "swatch-strip";
+        strip.style.background = "linear-gradient(90deg, " + scheme.colors.join(", ") + ")";
+        b.append(strip, document.createTextNode(scheme.name));
+        b.addEventListener("click", () => {
+          habit.scheme = key;
+          picker.querySelectorAll(".swatch").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+          renderAll();
+        });
+        picker.appendChild(b);
+      }
+      field.append(label, picker);
       schemeFields.appendChild(field);
     }
   }
@@ -630,6 +659,7 @@ async function init() {
   setupCustomize();
   await loadData();
   renderAll();
+  darkMode.addEventListener("change", renderAll);
 }
 
 init();

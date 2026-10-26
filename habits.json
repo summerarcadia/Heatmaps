@@ -20,7 +20,7 @@
       "unit": "reviews",
       "unit_one": "review",
       "goal": 1,
-      "levels": "auto",
+      "max": "auto",
       "scheme": "lime",
       "manual": false
     },
@@ -31,7 +31,7 @@
       "unit": "passages",
       "unit_one": "passage",
       "goal": 1,
-      "levels": [1, 2, 3, 4, 5],
+      "max": 5,
       "scheme": "magenta",
       "manual": true,
       "buttons": [1]
@@ -43,7 +43,7 @@
       "unit": "questions",
       "unit_one": "question",
       "goal": 10,
-      "levels": [1, 10, 20, 30, 40],
+      "max": 40,
       "scheme": "ice",
       "manual": true,
       "buttons": [10]

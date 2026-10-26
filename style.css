@@ -25,6 +25,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -165,7 +166,21 @@ details summary { cursor: pointer; color: var(--muted); margin-bottom: 8px; }
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
 }
-.field label { font-size: 14px; }
+.field label, .field-label { font-size: 14px; }
+.scheme-field { flex-wrap: wrap; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatch {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 72px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.swatch-strip { display: block; width: 56px; height: 10px; border-radius: 3px; }
+.swatch[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); font-weight: 700; }
 .field:last-of-type { margin-bottom: 14px; }
 #customize .row { margin-top: 14px; }
 
